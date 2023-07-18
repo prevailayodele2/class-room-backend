@@ -24,8 +24,10 @@ exports.register = catchAsync(async (req, res, next) => {
 
   const filteredBody = filterObj(
     req.body,
-    "firstName",
-    "lastName",
+    "fullName",
+    "faculty",
+    "department",
+    "level",
     "email",
     "password"
   );

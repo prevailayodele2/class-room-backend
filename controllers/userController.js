@@ -275,3 +275,54 @@ exports.getCallLogs = catchAsync(async (req, res, next) => {
     data: call_logs,
   });
 });
+
+const faculties =['set','sat','seet','soc']
+
+const schoolFacultyOfficials = [
+  // 'set','sat','seet','soc'
+  {
+    'sat':{
+      sc:'owoade',
+      sh:'owoade'
+    }
+  },
+  {
+    'set':{
+     sc:'treasure',
+     sh: 'treasure'
+    }
+  },
+  {
+    'seet':{
+      sc:'prevail',
+      sh:'prevail'
+    }
+  },
+]
+
+exports.userDashbohardFilter = catchAsync(async (req, res, next) => {
+  const user_id = req.user._id;
+//finds user details
+let userdetails = []
+  const user = await User.findOne({ _id: user_id })
+
+  if (!user ) {
+    res.status(400).json({
+      status: "error",
+      message: "Incorrect password",
+    });
+    return;
+  }
+   //check user faculty
+   const {faculty, department, level} = user
+  const  mappedFaculty = schoolFacultyOfficials.find((data)=> data === faculty)
+  console.log(mappedFaculty)
+
+  res.status(200).json({
+    status: "success",
+    message: "User Details Found successfully!",
+    data: {
+      mappedFaculty
+    },
+  });
+});
