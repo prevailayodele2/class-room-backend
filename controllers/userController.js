@@ -1,6 +1,7 @@
 const AudioCall = require("../models/audioCall");
 const FriendRequest = require("../models/friendRequest");
 const User = require("../models/user");
+const AdminMessage = require("../models/admin");
 const VideoCall = require("../models/videoCall");
 const catchAsync = require("../utils/catchAsync");
 const filterObj = require("../utils/filterObj");
@@ -280,43 +281,29 @@ const faculties =['set','sat','seet','soc']
 
 const schoolFacultyOfficials = [
   // 'set','sat','seet','soc'
-  {
-    'sat':{
-      sc:'owoade',
-      sh:'owoade'
-    }
-  },
-  {
-    'set':{
-     sc:'treasure',
-     sh: 'treasure'
-    }
-  },
-  {
-    'seet':{
-      sc:'prevail',
-      sh:'prevail'
-    }
-  },
+ {id: 'set', data: {vc: 'meee', so: 'you'}},
+ {id: 'sat', data: {vc: 'treasure', so: 'treasure'}},
+ {id: 'seet', data: {vc: 'owoade', so: 'prevail'}},
+ {id: 'soc', data: {vc: 'prevail', so: 'owoade'}},
+
 ]
 
-exports.userDashbohardFilter = catchAsync(async (req, res, next) => {
+exports.userDashbohardData = catchAsync(async (req, res, next) => {
   const user_id = req.user._id;
-//finds user details
-let userdetails = []
   const user = await User.findOne({ _id: user_id })
 
   if (!user ) {
     res.status(400).json({
       status: "error",
-      message: "Incorrect password",
+      message: "user not found",
     });
     return;
   }
-   //check user faculty
+   //check user data
    const {faculty, department, level} = user
-  const  mappedFaculty = schoolFacultyOfficials.find((data)=> data === faculty)
-  console.log(mappedFaculty)
+  const  mappedFaculty = schoolFacultyOfficials.filter((data) => {
+    return data.id === faculty
+  })
 
   res.status(200).json({
     status: "success",
@@ -324,5 +311,78 @@ let userdetails = []
     data: {
       mappedFaculty
     },
+  });
+});
+
+
+//admin route
+exports.verifyQualification = catchAsync(async (req, res, next) => {
+  const user = await User.find()
+
+  const filteredUser = user.filter((data)=> data.nickname === req.body.verifyUser)
+
+  filteredUser.verifiedQualification = true
+  filteredUser.save()
+
+  res.status(200).json({
+    status: "success",
+    message: "User Details Found successfully!",
+    data: `user with nickname ${filteredUser} has been verified`
+  });
+});
+////
+
+exports.requestAutorization = catchAsync(async (req, res, next) => {
+  const user_id = req.user._id;
+  const user = await User.findOne({ _id: user_id })
+
+  //check if user exist
+  if (!user ) {
+    res.status(400).json({
+      status: "error",
+      message: "user not found",
+    });
+    return;
+  }
+ 
+  if (!user.verifiedQualification ) {
+    res.status(400).json({
+      status: "error",
+      message: "user not autorized",
+    });
+    return;
+  }
+
+  res.status(200).json({
+    status: "success",
+    message: "This user is autorized",
+    data: true
+  });
+});
+
+////
+
+exports.messageAdmin = catchAsync(async (req, res, next) => {
+  const user_id = req.user._id;
+  const {nickname, faculty, level, message} = req.body
+  const user = await User.findOne({ _id: user_id })
+
+  //check if user exist
+  if (!user ) {
+    res.status(400).json({
+      status: "error",
+      message: "user not found",
+    });
+    return;
+  }
+ 
+  const creatAdminMessage = await AdminMessage.create({
+    user_id, nickname, faculty, level, message
+  })
+
+  res.status(200).json({
+    status: "success",
+    message: "Admin will get back to you",
+    data: creatAdminMessage
   });
 });

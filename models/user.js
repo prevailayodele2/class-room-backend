@@ -8,11 +8,21 @@ const userSchema = new mongoose.Schema({
     required: [true, "First Name is required"],
   },
   nickname: {
-    type: String
+    type: String,
+    unique: true
   },
   about: {
     type: String,
   },
+  qualification:{
+    type: String,
+    required: [true, 'class position required'],
+    enum: ['class-rep', 'course-rep', 'member']
+  },
+  verifiedQualification: {
+    type: Boolean,
+    default: false
+  }, 
   avatar: {
     type: String,
   },
