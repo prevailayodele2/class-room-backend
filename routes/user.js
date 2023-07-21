@@ -19,6 +19,11 @@ router.get("/get-friends", authController.protect, userController.getFriends);
 router.post("/start-audio-call", authController.protect, userController.startAudioCall);
 router.post("/start-video-call", authController.protect, userController.startVideoCall);
 
-router.post("/get-user-details", authController.protect,  userController.userDashbohardData);
+router.get("/get-user-details", authController.protect,  userController.userDashbohardData);
+router.get("/get-user-course-list", authController.protect,  userController.getUserCourseList);
+router.get("/check-user-qualification", authController.protect,  userController.checkVerification);
+router.post("/message-admin", authController.protect,  userController.messageAdmin);
+router.get("/get-user-coursemates", authController.protect,  userController.getUserCourseMates);
+router.get("/get-coursemate-profile", authController.protect,  userController.getCourseMateProfile);
 
 module.exports = router;

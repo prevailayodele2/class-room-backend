@@ -1,12 +1,12 @@
-const AudioCall = require("../models/audioCall");
-const FriendRequest = require("../models/friendRequest");
-const User = require("../models/user");
-const AdminMessage = require("../models/admin");
-const VideoCall = require("../models/videoCall");
-const catchAsync = require("../utils/catchAsync");
-const filterObj = require("../utils/filterObj");
+const AudioCall = require('../models/audioCall');
+const FriendRequest = require('../models/friendRequest');
+const User = require('../models/user');
+const AdminMessage = require('../models/admin');
+const VideoCall = require('../models/videoCall');
+const catchAsync = require('../utils/catchAsync');
+const filterObj = require('../utils/filterObj');
 
-const { generateToken04 } = require("./zegoServerAssistant");
+const { generateToken04 } = require('./zegoServerAssistant');
 
 // Please change appID to your appId, appid is a number
 // Example: 1234567890
@@ -18,33 +18,33 @@ const serverSecret = process.env.ZEGO_SERVER_SECRET; // type: 32 byte length str
 
 exports.getMe = catchAsync(async (req, res, next) => {
   res.status(200).json({
-    status: "success",
-    data: req.user,
+    status: 'success',
+    data: req.user
   });
 });
 
 exports.updateMe = catchAsync(async (req, res, next) => {
   const filteredBody = filterObj(
     req.body,
-    "firstName",
-    "lastName",
-    "about",
-    "avatar"
+    'firstName',
+    'lastName',
+    'about',
+    'avatar'
   );
 
   const userDoc = await User.findByIdAndUpdate(req.user._id, filteredBody);
 
   res.status(200).json({
-    status: "success",
+    status: 'success',
     data: userDoc,
-    message: "User Updated successfully",
+    message: 'User Updated successfully'
   });
 });
 
 exports.getUsers = catchAsync(async (req, res, next) => {
   const all_users = await User.find({
-    verified: true,
-  }).select("firstName lastName _id");
+    verified: true
+  }).select('firstName lastName _id');
 
   const this_user = req.user;
 
@@ -55,51 +55,51 @@ exports.getUsers = catchAsync(async (req, res, next) => {
   );
 
   res.status(200).json({
-    status: "success",
+    status: 'success',
     data: remaining_users,
-    message: "Users found successfully!",
+    message: 'Users found successfully!'
   });
 });
 
 exports.getAllVerifiedUsers = catchAsync(async (req, res, next) => {
   const all_users = await User.find({
-    verified: true,
-  }).select("firstName lastName _id");
+    verified: true
+  }).select('firstName lastName _id');
 
-  console.log(all_users)
+  console.log(all_users);
 
   const remaining_users = all_users.filter(
     (user) => user._id.toString() !== req.user._id.toString()
   );
 
   res.status(200).json({
-    status: "success",
+    status: 'success',
     data: remaining_users,
-    message: "Users found successfully!",
+    message: 'Users found successfully!'
   });
 });
 
 exports.getRequests = catchAsync(async (req, res, next) => {
   const requests = await FriendRequest.find({ recipient: req.user._id })
-    .populate("sender")
-    .select("_id firstName lastName");
+    .populate('sender')
+    .select('_id firstName lastName');
 
   res.status(200).json({
-    status: "success",
+    status: 'success',
     data: requests,
-    message: "Requests found successfully!",
+    message: 'Requests found successfully!'
   });
 });
 
 exports.getFriends = catchAsync(async (req, res, next) => {
   const this_user = await User.findById(req.user._id).populate(
-    "friends",
-    "_id firstName lastName"
+    'friends',
+    '_id firstName lastName'
   );
   res.status(200).json({
-    status: "success",
+    status: 'success',
     data: this_user.friends,
-    message: "Friends found successfully!",
+    message: 'Friends found successfully!'
   });
 });
 
@@ -111,7 +111,7 @@ exports.generateZegoToken = catchAsync(async (req, res, next) => {
   try {
     const { userId, room_id } = req.body;
 
-    console.log(userId, room_id, "from generate zego token");
+    console.log(userId, room_id, 'from generate zego token');
 
     const effectiveTimeInSeconds = 3600; //type: number; unit: s; token expiration time, unit: second
     const payloadObject = {
@@ -120,9 +120,9 @@ exports.generateZegoToken = catchAsync(async (req, res, next) => {
       // The token generated in this example allows publishStream (push stream) action
       privilege: {
         1: 1, // loginRoom: 1 pass , 0 not pass
-        2: 1, // publishStream: 1 pass , 0 not pass
+        2: 1 // publishStream: 1 pass , 0 not pass
       },
-      stream_id_list: null,
+      stream_id_list: null
     }; //
     const payload = JSON.stringify(payloadObject);
     // Build token
@@ -134,9 +134,9 @@ exports.generateZegoToken = catchAsync(async (req, res, next) => {
       payload
     );
     res.status(200).json({
-      status: "success",
-      message: "Token generated successfully",
-      token,
+      status: 'success',
+      message: 'Token generated successfully',
+      token
     });
   } catch (err) {
     console.log(err);
@@ -155,7 +155,7 @@ exports.startAudioCall = catchAsync(async (req, res, next) => {
     participants: [from, to],
     from,
     to,
-    status: "Ongoing",
+    status: 'Ongoing'
   });
 
   res.status(200).json({
@@ -164,8 +164,8 @@ exports.startAudioCall = catchAsync(async (req, res, next) => {
       roomID: new_audio_call._id,
       streamID: to,
       userID: from,
-      userName: from,
-    },
+      userName: from
+    }
   });
 });
 
@@ -181,7 +181,7 @@ exports.startVideoCall = catchAsync(async (req, res, next) => {
     participants: [from, to],
     from,
     to,
-    status: "Ongoing",
+    status: 'Ongoing'
   });
 
   res.status(200).json({
@@ -190,8 +190,8 @@ exports.startVideoCall = catchAsync(async (req, res, next) => {
       roomID: new_video_call._id,
       streamID: to,
       userID: from,
-      userName: from,
-    },
+      userName: from
+    }
   });
 });
 
@@ -201,17 +201,17 @@ exports.getCallLogs = catchAsync(async (req, res, next) => {
   const call_logs = [];
 
   const audio_calls = await AudioCall.find({
-    participants: { $all: [user_id] },
-  }).populate("from to");
+    participants: { $all: [user_id] }
+  }).populate('from to');
 
   const video_calls = await VideoCall.find({
-    participants: { $all: [user_id] },
-  }).populate("from to");
+    participants: { $all: [user_id] }
+  }).populate('from to');
 
   console.log(audio_calls, video_calls);
 
   for (let elm of audio_calls) {
-    const missed = elm.verdict !== "Accepted";
+    const missed = elm.verdict !== 'Accepted';
     if (elm.from._id.toString() === user_id.toString()) {
       const other_user = elm.to;
 
@@ -222,7 +222,7 @@ exports.getCallLogs = catchAsync(async (req, res, next) => {
         name: other_user.firstName,
         online: true,
         incoming: false,
-        missed,
+        missed
       });
     } else {
       // incoming
@@ -235,13 +235,13 @@ exports.getCallLogs = catchAsync(async (req, res, next) => {
         name: other_user.firstName,
         online: true,
         incoming: false,
-        missed,
+        missed
       });
     }
   }
 
   for (let element of video_calls) {
-    const missed = element.verdict !== "Accepted";
+    const missed = element.verdict !== 'Accepted';
     if (element.from._id.toString() === user_id.toString()) {
       const other_user = element.to;
 
@@ -252,7 +252,7 @@ exports.getCallLogs = catchAsync(async (req, res, next) => {
         name: other_user.firstName,
         online: true,
         incoming: false,
-        missed,
+        missed
       });
     } else {
       // incoming
@@ -265,97 +265,96 @@ exports.getCallLogs = catchAsync(async (req, res, next) => {
         name: other_user.firstName,
         online: true,
         incoming: false,
-        missed,
+        missed
       });
     }
   }
 
   res.status(200).json({
-    status: "success",
-    message: "Call Logs Found successfully!",
-    data: call_logs,
+    status: 'success',
+    message: 'Call Logs Found successfully!',
+    data: call_logs
   });
 });
-
-const faculties =['set','sat','seet','soc']
 
 const schoolFacultyOfficials = [
   // 'set','sat','seet','soc'
- {id: 'set', data: {vc: 'meee', so: 'you'}},
- {id: 'sat', data: {vc: 'treasure', so: 'treasure'}},
- {id: 'seet', data: {vc: 'owoade', so: 'prevail'}},
- {id: 'soc', data: {vc: 'prevail', so: 'owoade'}},
-
-]
+  { id: 'set', data: { vc: 'meee', so: 'you' } },
+  { id: 'sat', data: { vc: 'treasure', so: 'treasure' } },
+  { id: 'seet', data: { vc: 'owoade', so: 'prevail' } },
+  { id: 'soc', data: { vc: 'prevail', so: 'owoade' } }
+];
 
 exports.userDashbohardData = catchAsync(async (req, res, next) => {
   const user_id = req.user._id;
-  const user = await User.findOne({ _id: user_id })
+  const user = await User.findOne({ _id: user_id });
 
-  if (!user ) {
+  if (!user) {
     res.status(400).json({
-      status: "error",
-      message: "user not found",
+      status: 'error',
+      message: 'user not found'
     });
     return;
   }
-   //check user data
-   const {faculty, department, level} = user
-  const  mappedFaculty = schoolFacultyOfficials.filter((data) => {
-    return data.id === faculty
-  })
+  //check user data
+  const { faculty, department } = user;
+  const mappedFaculty = schoolFacultyOfficials.filter((data) => {
+    return data.id === faculty;
+  });
 
   res.status(200).json({
-    status: "success",
-    message: "User Details Found successfully!",
+    status: 'success',
+    message: 'User Details Found successfully!',
     data: {
       mappedFaculty
-    },
+    }
   });
 });
-
 
 //admin route
 exports.verifyQualification = catchAsync(async (req, res, next) => {
-  const user = await User.find()
+  const user = await User.find();
 
-  const filteredUser = user.filter((data)=> data.nickname === req.body.verifyUser)
+  const filteredUser = user.filter(
+    (data) => data.nickname === req.body.verifyUser
+  );
 
-  filteredUser.verifiedQualification = true
-  filteredUser.save()
+  filteredUser.verifiedQualification = true;
+  filteredUser.save();
 
   res.status(200).json({
-    status: "success",
-    message: "User Details Found successfully!",
+    status: 'success',
+    message: 'User Details Found successfully!',
     data: `user with nickname ${filteredUser} has been verified`
   });
 });
+
 ////
 
-exports.requestAutorization = catchAsync(async (req, res, next) => {
+exports.checkVerification = catchAsync(async (req, res, next) => {
   const user_id = req.user._id;
-  const user = await User.findOne({ _id: user_id })
+  const user = await User.findOne({ _id: user_id });
 
   //check if user exist
-  if (!user ) {
+  if (!user) {
     res.status(400).json({
-      status: "error",
-      message: "user not found",
+      status: 'error',
+      message: 'user not found'
     });
     return;
   }
- 
-  if (!user.verifiedQualification ) {
+
+  if (!user.verifiedQualification) {
     res.status(400).json({
-      status: "error",
-      message: "user not autorized",
+      status: 'error',
+      message: 'user not autorized'
     });
     return;
   }
 
   res.status(200).json({
-    status: "success",
-    message: "This user is autorized",
+    status: 'success',
+    message: 'This user is autorized',
     data: true
   });
 });
@@ -364,25 +363,196 @@ exports.requestAutorization = catchAsync(async (req, res, next) => {
 
 exports.messageAdmin = catchAsync(async (req, res, next) => {
   const user_id = req.user._id;
-  const {nickname, faculty, level, message} = req.body
-  const user = await User.findOne({ _id: user_id })
+  const { message } = req.body;
+  const user = await User.findOne({ _id: user_id });
 
   //check if user exist
-  if (!user ) {
+  if (!user) {
     res.status(400).json({
-      status: "error",
-      message: "user not found",
+      status: 'error',
+      message: 'user not found'
     });
     return;
   }
- 
+  const {nickname, faculty, level, department} = user
+
   const creatAdminMessage = await AdminMessage.create({
-    user_id, nickname, faculty, level, message
-  })
+    user_id,
+    nickname,
+    faculty,
+    level,
+    department,
+    message
+  });
 
   res.status(200).json({
-    status: "success",
-    message: "Admin will get back to you",
+    status: 'success',
+    message: 'Admin will get back to you',
     data: creatAdminMessage
+  });
+});
+
+//get user course list
+
+const UserAcademicData = [
+  {
+    identifier: 'set',
+    level: 100,
+    department: 'qsv',
+    semester: [
+      {
+        id: 1,
+        courses: ['mts 101', 'gns101', 'mee 101', 'phy 101', 'che 101']
+      },
+      { id: 2, courses: ['mts 102', 'gns102', 'mee 102', 'phy 102', 'che 102'] }
+    ]
+  },
+  {
+    identifier: 'set',
+    level: 200,
+    department: 'qsv',
+    semester: [
+      {
+        id: 1,
+        courses: ['gns 203', 'qsv201', 'arc 211', 'bdg 205', 'bdg 201']
+      },
+      { id: 2, courses: ['gns 203', 'qsv201', 'mee 101', 'phy 101', 'che 101'] }
+    ]
+  },
+  {
+    identifier: 'set',
+    level: 300,
+    department: 'qsv',
+    semester: [
+      {
+        id: 1,
+        courses: ['gns 203', 'qsv201', 'mee 101', 'phy 101', 'che 101']
+      },
+      { id: 2, courses: ['gns 203', 'qsv201', 'mee 101', 'phy 101', 'che 101'] }
+    ]
+  },
+  {
+    identifier: 'set',
+    level: 400,
+    department: 'qsv',
+    semester: [
+      {
+        id: 1,
+        courses: ['gns 203', 'qsv201', 'mee 101', 'phy 101', 'che 101']
+      },
+      { id: 2, courses: ['gns 203', 'qsv201', 'mee 101', 'phy 101', 'che 101'] }
+    ]
+  },
+  {
+    identifier: 'set',
+    level: 500,
+    department: 'qsv',
+    semester: [
+      {
+        id: 1,
+        courses: ['gns 203', 'qsv201', 'mee 101', 'phy 101', 'che 101'],
+      },
+      { id: 2, courses: ['gns 203', 'qsv201', 'mee 101', 'phy 101', 'che 101'] }
+    ]
+  },
+  //urp
+
+];
+
+exports.getUserCourseList = catchAsync(async (req, res, next) => {
+  const user_id = req.user._id;
+  const user = await User.findOne({ _id: user_id });
+  //check if user exist
+  if (!user) {
+    res.status(400).json({
+      status: 'error',
+      message: 'user not found'
+    });
+    return;
+  }
+
+  const { faculty, level, department } = user;
+
+  const filterUserFaculty = UserAcademicData.filter((data) => {
+    return data.identifier === faculty;
+  });
+
+  const filterUserDepartment = filterUserFaculty.filter((data) => {
+    return data.department === department;
+  });
+
+  const filterUserlevel = filterUserDepartment.filter((data) => {
+    data.level === level;
+  });
+
+  console.log(filterUserlevel);
+
+  res.status(200).json({
+    status: 'success',
+    message: 'Admin will get back to you',
+    data: filterUserlevel
+  });
+});
+
+
+exports.getUserCourseMates = catchAsync(async (req, res, next) => {
+  const user_id = req.user._id;
+  const user = await User.findOne({ _id: user_id });
+  //check if user exist
+  if (!user) {
+    res.status(400).json({
+      status: 'error',
+      message: 'user not found Please login'
+    });
+    return;
+  }
+
+  const {faculty, department, level} = user
+
+  const getAllUser = await User.find()
+
+const filterFacultyMate = getAllUser.filter((data)=>{
+  return data.faculty === faculty
+})
+
+const filterDepartmentMate = filterFacultyMate.filter((data)=>{
+  return data.department === department
+})
+
+const filterlevelmate = filterDepartmentMate.filter((data)=>{
+  return data.level === level
+})
+
+const ExcludePresentUser = filterlevelmate.filter((data)=>{
+  return data._id !== user_id
+})
+
+  res.status(200).json({
+    status: 'success',
+    message: 'Admin will get back to you',
+    data: ExcludePresentUser
+  });
+});
+
+//get course mate profile
+exports.getCourseMateProfile = catchAsync(async (req, res, next) => {
+  const user_id = req.user._id;
+  const user = await User.findOne({ _id: user_id });
+
+  //check if user exist
+  if (!user) {
+    res.status(400).json({
+      status: 'error',
+      message: 'user not found'
+    });
+    return;
+  }
+
+  const getCourseMate = await User.findOne({_id: req.user.id})
+
+  res.status(200).json({
+    status: 'success',
+    message: 'User info gotten successfully',
+    data: getCourseMate
   });
 });

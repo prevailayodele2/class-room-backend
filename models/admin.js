@@ -10,11 +10,15 @@ const adminMessage = new mongoose.Schema({
   },
   level: {
     type: String,
-    required: [true, 'level admin cannot be empty']
+    required: [true, 'level  cannot be empty']
+  },
+  department: {
+    type: String,
+    required: [true, 'department cannot be empty']
   },
   faculty: {
     type: String,
-    required: [true, 'faculty admin cannot be empty']
+    required: [true, 'faculty cannot be empty']
   },
   message: {
     type: String,
